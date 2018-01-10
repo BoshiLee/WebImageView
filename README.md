@@ -6,8 +6,9 @@
 - Loading web image with view animation 
 - Smooth loading web image
 
-
-![](https://media.giphy.com/media/xULW8ABL8rsw3jZyaA/giphy.gif)
+<p align="center">
+  <img src="https://media.giphy.com/media/xULW8ABL8rsw3jZyaA/giphy.gif">
+</p>
 
 
 ## Useage:

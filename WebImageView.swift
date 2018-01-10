@@ -8,20 +8,24 @@ import UIKit
 let imageCache = NSCache<NSString, UIImage>()
 
 class WebImageView: UIImageView {
-
-    var imageUrlString: String?
-
-    var task: URLSessionTask?
-
+    
+    private var imageUrlString: String?
+    
+    private var task: URLSessionTask?
+    
+}
+// Web Request
+extension WebImageView {
+    
     func load(fromURLString urlString: String, enableAnimation: Bool, defaultImage: UIImage, animationOptions: UIViewAnimationOptions = .transitionCrossDissolve) {
         self.imageUrlString = urlString
         self.image = defaultImage
-
+        
         if let imageFromCache = imageCache.object(forKey: urlString as NSString) {
             image = imageFromCache
             return
         }
-
+        
         guard var request = urlString.asURLRequest() else { return }
         request.httpMethod = "GET"
         self.task = InternetUtil.shared.creatTask(withURLRequest: request) { [weak self] data, url, error in
@@ -32,7 +36,7 @@ class WebImageView: UIImageView {
                 guard responseURL.absoluteString == urlString else {return}
                 guard data != nil else {return}
                 guard let imageToCache = UIImage(data: data!) else { return }
-
+                
                 if weakSelf.imageUrlString == urlString {
                     if enableAnimation {
                         UIView.transition(with: weakSelf, duration: 0.3, options: animationOptions, animations: {
@@ -47,4 +51,11 @@ class WebImageView: UIImageView {
         }
         self.task?.resume()
     }
+    
+    func cancelLoading() {
+        guard self.task != nil else { return }
+        self.task?.cancel()
+    }
+    
 }
+
