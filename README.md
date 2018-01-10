@@ -38,7 +38,7 @@ Check out animationOptions with [UIViewAnimationOptions](https://developer.apple
 ```Swift
 func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
     guard let imageCell = cell as? ImageTableViewCell else {return}
-    imageCell.pixaImageView.task?.cancel()
+    imageCell.imageView.task?.cancel()
 }
 ```    
 
@@ -56,7 +56,7 @@ Drag `WebImageView.swift` and `InternetUtil.swift` to your XCode project.
 Contact me with with email or linkedin
 
 - [Email](boshi.litw@gmail.com)
-- [Linkedin](https://www.linkedin.com/in/boshi-li-b72836102/)
+- [LinkedIn](https://www.linkedin.com/in/boshi-li-b72836102/)
 
 ## Other:
 - Please 🌟 this repo if you like it! 
