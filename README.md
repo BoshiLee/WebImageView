@@ -46,15 +46,20 @@ func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell,
 ## Requirements:
 
 - Swift 3
+- iOS 10
 
 ## Installation:
 
 Drag `WebImageView.swift` and `InternetUtil.swift` to your XCode project.
 
-## Other:
+## Contact Me
+Contact me with with email or linkedin
 
-Please share this repo if you like it! 
-May the force be with you. 🤩
+- [Email](boshi.litw@gmail.com)
+- [Linkedin](https://www.linkedin.com/in/boshi-li-b72836102/)
+
+## Other:
+- Please 🌟 this repo if you like it! 
 
 
 
