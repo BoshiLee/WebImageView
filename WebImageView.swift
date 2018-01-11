@@ -44,10 +44,12 @@ public class WebImageView: UIImageView {
             guard let data = data else { return }
             guard let image = UIImage(data: data) else { return }
             let configuration = imageView.configuration
-            UIView.transition(with: imageView, duration: configuration.animationDuration, options: configuration.animationOptions, animations: {
-                imageView.image = image
-            }, completion: nil)
-            imageCache.setObject(image, forKey: request as NSURLRequest)
+            DispatchQueue.main.async {
+                UIView.transition(with: imageView, duration: configuration.animationDuration, options: configuration.animationOptions, animations: {
+                    imageView.image = image
+                }, completion: nil)
+                imageCache.setObject(image, forKey: request as NSURLRequest)
+            }
         }
     }
     
