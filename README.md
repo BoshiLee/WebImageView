@@ -5,6 +5,7 @@
 - Fix reused bug with UITableViewCell or UICollectionViewCell
 - Loading web image with view animation 
 - Smooth loading web image
+- Automatic cancel download task when create a new task
 
 <p align="center">
   <img src="https://media.giphy.com/media/xULW8ABL8rsw3jZyaA/giphy.gif">
@@ -24,7 +25,7 @@
 yourImageView.load(request: URLRequest(url: imageURL))
 ```
 
-3. Set palceholder Image or animationOptions(Optional):
+3. Optional Setting palceholder Image or animationOptions:
 
 ```Swift
 @IBOutlet weak var imageView: WebImageView! {
@@ -46,7 +47,7 @@ Check out animationOptions with [UIViewAnimationOptions](https://developer.apple
 
 ## Installation:
 
-Drag `WebImageView.swift` and `InternetUtil.swift` to your XCode project.
+Drag `WebImageView.swift` to your XCode project.
 
 ## Contact Me
 Contact me with with email or linkedin
