@@ -5,56 +5,52 @@
 
 import UIKit
 
-let imageCache = NSCache<NSString, UIImage>()
+private let imageCache = NSCache<NSURLRequest, UIImage>()
 
-class WebImageView: UIImageView {
+public class WebImageView: UIImageView {
     
-    private var imageUrlString: String?
-    
-    private var task: URLSessionTask?
-    
-}
-// Web Request
-extension WebImageView {
-    
-    func load(fromURLString urlString: String, enableAnimation: Bool, defaultImage: UIImage, animationOptions: UIViewAnimationOptions = .transitionCrossDissolve) {
-        self.imageUrlString = urlString
-        self.image = defaultImage
-        
-        if let imageFromCache = imageCache.object(forKey: urlString as NSString) {
-            image = imageFromCache
-            return
-        }
-        
-        guard var request = urlString.asURLRequest() else { return }
-        request.httpMethod = "GET"
-        self.task = InternetUtil.shared.creatTask(withURLRequest: request) { [weak self] data, url, error in
-            guard let weakSelf = self else {return}
-            if error != nil {
-                error?.errorHandler()
-            } else if let responseURL = url {
-                guard responseURL.absoluteString == urlString else {return}
-                guard data != nil else {return}
-                guard let imageToCache = UIImage(data: data!) else { return }
-                
-                if weakSelf.imageUrlString == urlString {
-                    if enableAnimation {
-                        UIView.transition(with: weakSelf, duration: 0.3, options: animationOptions, animations: {
-                            weakSelf.image = imageToCache
-                        }, completion: nil)
-                    } else {
-                        weakSelf.image = imageToCache
-                    }
-                }
-                imageCache.setObject(imageToCache, forKey: responseURL.absoluteString as NSString)
-            }
-        }
-        self.task?.resume()
+    public struct Configuration {
+        var placeholderImage: UIImage? = nil
+        var animationDuration: TimeInterval = 0.3
+        var animationOptions: UIViewAnimationOptions = .transitionCrossDissolve
     }
     
-    func cancelLoading() {
-        guard self.task != nil else { return }
-        self.task?.cancel()
+    private var currentTask: URLSessionTask? {
+        didSet {
+            oldValue?.cancel()
+            currentTask?.resume()
+        }
+    }
+    
+    public var configuration = Configuration()
+    
+    public func load(request: URLRequest?) {
+        guard let request = request else {
+            currentTask = nil
+            return
+        }
+        if let imageFromCache = imageCache.object(forKey: request as NSURLRequest) {
+            image = imageFromCache
+            return
+        } else {
+            image = configuration.placeholderImage
+        }
+        currentTask = URLSession.shared.dataTask(with: request) { [weak self] (data, _, error) in
+            guard let imageView = self else { return }
+            if let error = error {
+                print("Network Error: ", error)
+            }
+            guard imageView.currentTask?.originalRequest == request else { return }
+            guard let data = data else { return }
+            guard let image = UIImage(data: data) else { return }
+            let configuration = imageView.configuration
+            DispatchQueue.main.async {
+                UIView.transition(with: imageView, duration: configuration.animationDuration, options: configuration.animationOptions, animations: {
+                    imageView.image = image
+                }, completion: nil)
+                imageCache.setObject(image, forKey: request as NSURLRequest)
+            }
+        }
     }
     
 }
