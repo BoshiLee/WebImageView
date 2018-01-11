@@ -17,31 +17,26 @@
 
 ![](https://i.imgur.com/JXVrs5W.png)
 
-2. Load Image form URL：
+2. Load Image form URLRequest：
 
- 
+
 ```Swift
-yourImageView.load(fromURLString: webUrlString, enableAnimation: true, defaultImage: UIImage(named: "defaultImage")!)
+yourImageView.load(request: URLRequest(url: imageURL))
 ```
 
-3. You can set animation transition style with `animationOptions:`
+3. Set palceholder Image or animationOptions(Optional):
 
 ```Swift
-yourImageView.load(fromURLString: webUrlString, enableAnimation: true, defaultImage: UIImage(named: "defaultImage")!, animationOptions: .transitionCrossDissolve)
+@IBOutlet weak var imageView: WebImageView! {
+	didSet {
+    	imageView.configuration.placeholderImage = UIImage(named: "placeholderImage")
+        imageView.configuration.animationOptions = .transitionCrossDissolve
+	}
+}
 ```
 
 Check out animationOptions with [UIViewAnimationOptions](https://developer.apple.com/documentation/uikit/uiviewanimationoptions) documents.
 
-4. Or just set `enableAnimation: false` to load without animations.
-
-5. Cancel download tasks for table view `didEndDisplaying` :
-
-```Swift
-func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-    guard let imageCell = cell as? ImageTableViewCell else {return}
-    imageCell.imageView.cancelLoading()
-}
-```    
 
 
 ## Requirements:
@@ -56,7 +51,7 @@ Drag `WebImageView.swift` and `InternetUtil.swift` to your XCode project.
 ## Contact Me
 Contact me with with email or linkedin
 
-- [Email](boshi.litw@gmail.com)
+- boshiLi, boshi.litw@gmail.com
 - [LinkedIn](https://www.linkedin.com/in/boshi-li-b72836102/)
 
 ## Other:
