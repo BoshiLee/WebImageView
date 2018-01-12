@@ -5,53 +5,87 @@
 
 import UIKit
 
-private let imageCache = NSCache<NSURLRequest, UIImage>()
+fileprivate let imageCache = NSCache<NSURL, UIImage>()
 
-public class WebImageView: UIImageView {
+class WebImageView: UIImageView {
     
-    public struct Configuration {
+    struct Configuration {
         var placeholderImage: UIImage? = nil
         var animationDuration: TimeInterval = 0.3
         var animationOptions: UIViewAnimationOptions = .transitionCrossDissolve
     }
     
-    private var currentTask: URLSessionTask? {
+    fileprivate var currentTask: URLSessionTask? {
         didSet {
             oldValue?.cancel()
             currentTask?.resume()
         }
     }
     
+    fileprivate var originRequsetURL: URL?
+    var responseURL: URL?
+    
     public var configuration = Configuration()
     
-    public func load(request: URLRequest?) {
-        guard let request = request else {
-            currentTask = nil
-            return
-        }
-        if let imageFromCache = imageCache.object(forKey: request as NSURLRequest) {
-            image = imageFromCache
+}
+// Web Request
+extension WebImageView {
+    
+    public func load(url: URL) {
+        self.originRequsetURL = url
+        let request = URLRequest(url: url)
+        self.image = self.configuration.placeholderImage
+        
+        if let imageFromCache = imageCache.object(forKey: url as NSURL) {
+            DispatchQueue.main.async { [weak self] in
+                guard let imageView = self else { return }
+                let configuration = imageView.configuration
+                UIView.transition(with: imageView, duration: configuration.animationDuration, options: configuration.animationOptions, animations: {
+                    imageView.image = imageFromCache
+                }, completion: nil)
+            }
             return
         } else {
             image = configuration.placeholderImage
         }
-        currentTask = URLSession.shared.dataTask(with: request) { [weak self] (data, _, error) in
+        
+        currentTask = URLSession.shared.dataTask(with: request) { [weak self] (callbackData, response, error) in
             guard let imageView = self else { return }
             if let error = error {
                 print("Network Error: ", error)
             }
-            guard imageView.currentTask?.originalRequest == request else { return }
-            guard let data = data else { return }
-            guard let image = UIImage(data: data) else { return }
+            
+            guard let responseURL = response?.url else { return }
+            guard imageView.originRequsetURL == responseURL else { return }
+            guard let data = callbackData else { return }
+            guard let cgImage = imageView.makeThumbnail(data: data, maxPixelSize: 512) else { return }
+            let image = UIImage(cgImage: cgImage)
+            
             let configuration = imageView.configuration
+            
+            // back to main thread to do ui change
             DispatchQueue.main.async {
                 UIView.transition(with: imageView, duration: configuration.animationDuration, options: configuration.animationOptions, animations: {
                     imageView.image = image
                 }, completion: nil)
-                imageCache.setObject(image, forKey: request as NSURLRequest)
             }
+            imageView.responseURL = responseURL
+            imageCache.setObject(image, forKey: url as NSURL)
         }
     }
     
+}
+
+// Make Thumbnail
+extension WebImageView {
+    fileprivate func makeThumbnail(data: Data, maxPixelSize: Int) -> CGImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        let options = [
+            kCGImageSourceCreateThumbnailWithTransform : true,
+            kCGImageSourceCreateThumbnailFromImageAlways : true,
+            kCGImageSourceThumbnailMaxPixelSize : maxPixelSize
+            ] as CFDictionary
+        return CGImageSourceCreateThumbnailAtIndex(source, 0, options)
+    }
 }
 

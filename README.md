@@ -22,7 +22,7 @@
 
 
 ```Swift
-yourImageView.load(request: URLRequest(url: imageURL))
+yourImageView.load(url: imageURL)
 ```
 
 3. Optional Setting palceholder Image or animationOptions:
