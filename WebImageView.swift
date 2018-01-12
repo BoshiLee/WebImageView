@@ -34,7 +34,7 @@ extension WebImageView {
     public func load(url: URL) {
         self.originRequsetURL = url
         let request = URLRequest(url: url)
-        self.image = self.configuration.placeholderImage
+        
         
         if let imageFromCache = imageCache.object(forKey: url as NSURL) {
             DispatchQueue.main.async { [weak self] in
@@ -88,4 +88,3 @@ extension WebImageView {
         return CGImageSourceCreateThumbnailAtIndex(source, 0, options)
     }
 }
-
